@@ -9,6 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -24,9 +25,20 @@ ament_target_dependencies(status_publisher rclcpp std_msgs)
 add_executable(status_subscriber src/status_subscriber.cpp)
 ament_target_dependencies(status_subscriber rclcpp std_msgs)
 
+add_executable(
+  joint_state_simulator
+  src/joint_state_simulator.cpp
+)
+ament_target_dependencies(
+  joint_state_simulator
+  rclcpp
+  sensor_msgs
+)
+
 install(TARGETS
   status_publisher
   status_subscriber
+  joint_state_simulator
   DESTINATION lib/${PROJECT_NAME}
 )
 
