@@ -5,6 +5,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
+#include "std_srvs/srv/trigger.hpp"
 
 class JointStateSimulator : public rclcpp::Node
 {
@@ -22,7 +23,18 @@ public:
     publisher_ =
       this->create_publisher<sensor_msgs::msg::JointState>(
         "/joint_states", 10);
-
+  zero_service_ = this->create_service<std_srvs::srv::Trigger>(
+  "/zero_arm",
+  [this](
+    const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+    std::shared_ptr<std_srvs::srv::Trigger::Response> response)
+  {
+    (void)request;
+    elapsed_time_sec_ = 0.0;
+    response->success = true;
+    response->message = "Joint simulation reset to zero";
+    RCLCPP_INFO(this->get_logger(), "Zero service called");
+  });
     const auto timer_period =
       std::chrono::duration_cast<std::chrono::nanoseconds>(
         std::chrono::duration<double>(1.0 / publish_rate_hz_));
@@ -59,6 +71,7 @@ private:
 
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr publisher_;
   rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr zero_service_;
 };
 
 int main(int argc, char * argv[])
